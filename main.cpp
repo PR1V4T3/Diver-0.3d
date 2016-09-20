@@ -16,33 +16,62 @@
 
     using namespace std;
 
-void fi(string name, bool beg_end = 0){                    // functionInfo
+void functionInfo(bool showInfo, string name, char startOrEnd = 's'){                    // functionInfo
 
-    //////////////////////////
-    //                      //
-    //  0 = beg, 1 = end    //
-    //                      //
-    //////////////////////////
+     if(showInfo){
 
-    char stCh[2] = {'='};
+        char stCh[2] = {'='};
 
-    cout << "\n";
+        cout << "\n";
 
-    for(int i = 0; i < 60; i++) cout << stCh[0];
+        for(int i = 0; i < 60; i++) cout << stCh[0];
 
-    cout << "\n";
+        cout << "\n";
 
-    if(beg_end == 0) cout << "function.info: " << name << "() is running.\n";
-    if(beg_end == 1) cout << "function.info: " << name << "() has ended.\n";
+        if(startOrEnd == 's') cout << "function.info: " << name << "() is running. ++\n";
+        if(startOrEnd == 'e') cout << "function.info: " << name << "() has ended. --\n";
 
-    for(int i = 0; i < 60; i++) cout << stCh[0];
+        for(int i = 0; i < 60; i++) cout << stCh[0];
 
-    cout << "\n";
+        cout << "\n";
+    }
+}
+
+void numberVievAdjusting(int number){
+
+    // : 10000 |
+
+    int i = 0;
+
+    unsigned int howManySpaces;
+
+    if(number < 10){
+
+        howManySpaces = 3;
+
+    }else if(number < 100){
+
+        howManySpaces = 2;
+
+    }else if(number < 1000){
+
+        howManySpaces = 1;
+
+    }else if(number < 10000){
+
+        howManySpaces = 0;
+    }
+
+    cout << ": " << number;
+
+    for(int i = 0; i < howManySpaces; i++) cout << " ";
+
+    cout << " | ";
 }
 
 bool checkIsExist(string filePath, bool showInfo = false){                                                      // DONE
 
-    if(showInfo) fi("checkIsExitst");
+    functionInfo(showInfo, "checkIsExitst");
 
     fstream textFile;
     textFile.open(filePath.c_str());
@@ -64,31 +93,37 @@ bool checkIsExist(string filePath, bool showInfo = false){                      
 
     textFile.close();
 
-    if(showInfo) fi("checkIsExitst",1);
+    functionInfo(showInfo, "checkIsExitst", 'e');
 
     return bufor;
 }
 
 void showContent(string filePath, bool showInfo = false){                                                       // DONE
 
-    if(showInfo) fi("showContent");
+    functionInfo(showInfo, "showContent");
 
     if(checkIsExist(filePath, showInfo) == true){
 
         fstream textFile;
         string content = "";
         bool endLoop = false;
+        int line = 0;
 
         textFile.open(filePath.c_str());
 
-        cout << "*\n";
+
+        for(int i = 0; i < 50; i++) cout << "=";
+
+        cout << "\n";
 
             do{
 
                 if(textFile.eof() == false){
 
+                    line++;
                     getline(textFile, content);
-                    cout << "* " <<  content << endl;
+                    numberVievAdjusting(line);
+                    cout <<  content << endl;
 
                 }else endLoop = true;
 
@@ -96,15 +131,18 @@ void showContent(string filePath, bool showInfo = false){                       
 
             textFile.close();
 
+        for(int i = 0; i < 50; i++) cout << "=";
+
+        cout << "\n";
+
     }else cout << "Missing file in showContent() \n";
 
-    if(showInfo) fi("showContent",1);
+    functionInfo(showInfo, "showContent",'e');
 }
 
 int findInFile(string filePath, string keyWord, bool showInfo = false){                                         // TO OPTIMALIZATION // idk what did I want change :/
 
-
-    if(showInfo) fi("findInFile");
+    functionInfo(showInfo, "findInFile");
 
     if(checkIsExist(filePath.c_str(), showInfo) == true){
 
@@ -115,6 +153,7 @@ int findInFile(string filePath, string keyWord, bool showInfo = false){         
     int positionInFile;
     int lineInFile = 0;
     bool endLoop = false;
+    bool isFound = false;
 
     cout << "Parser is looking for: " << keyWord << endl;
 
@@ -134,13 +173,16 @@ int findInFile(string filePath, string keyWord, bool showInfo = false){         
             if(downloadedWord == keyWord){
 
                 endLoop = true;
+                isFound = true;
 
                 smallTest = textFile.tellg();
 
-                cout << "DBG.info: pstn in file: " << smallTest << endl;                                            /// BARDZO ISTOTNE MIEJSCE
+                if(showInfo){
 
-                if(showInfo){   cout << "In line: " << lineInFile << " has found: " << downloadedWord << endl;
-                                cout << "Position in file: " << positionInFile << endl;}
+                    cout << "DBG.info: actual position in file: " << smallTest << endl;                                            /// VERY IMPORTANT PLACE
+                    cout << "In line: " << lineInFile << " has found: " << downloadedWord << endl;
+                    cout << "Keyword's line position in file: " << positionInFile << endl;
+                }
 
             }else if(showInfo) cout << "In line: " << lineInFile << " hasn't found keyword.\n\n";
 
@@ -150,7 +192,10 @@ int findInFile(string filePath, string keyWord, bool showInfo = false){         
 
     textFile.close();
 
-    if(showInfo) fi("findInFile",1);
+    if(isFound == false) cout << "The keyword hasn't found.\n";
+    else cout << "The keyword has found\n";
+
+    functionInfo(showInfo, "findInFile", 'e');
 
     return positionInFile;
 
@@ -159,7 +204,7 @@ int findInFile(string filePath, string keyWord, bool showInfo = false){         
 
 int saveToFile(string filePath, int positionInFile, bool showInfo = false){                                     // TODO - pracowac przede wszystkim tutaj
 
-    if(showInfo) fi("saveToFile");
+    functionInfo(showInfo, "saveToFile");
 
     string upload;
     fstream textFile;
@@ -172,14 +217,14 @@ int saveToFile(string filePath, int positionInFile, bool showInfo = false){     
 
     textFile.close();
 
-    if(showInfo) fi("saveToFile",1);
+    functionInfo(showInfo, "saveToFile", 'e');
 
     return textFile.tellp();
 }
 
 int sendContent(string filePath, int positionInFile, char mode, bool showInfo = false){                         // TODO
 
-    if(showInfo) fi("sendContent",1);
+    functionInfo(showInfo, "sendContent",1);
 
     fstream textFile;
     fstream temporaryFile;
@@ -226,7 +271,7 @@ int sendContent(string filePath, int positionInFile, char mode, bool showInfo = 
     textFile.close();
     temporaryFile.close();
 
-    if(showInfo) fi("sendContent",1);
+    functionInfo(showInfo, "sendContent",1);
 
     return temporaryFile.tellg();
 
@@ -234,20 +279,22 @@ int sendContent(string filePath, int positionInFile, char mode, bool showInfo = 
 
 int main(){
 
-    bool showInfo = true;
+    bool showInfo = 0;
+    string keyword = "<div id=name>";
 
-    if(showInfo) fi("main()", 0);
-
+    functionInfo(showInfo, "main()");
 
     showContent("test_sets/index.html", showInfo);
-    findInFile("test_sets/index.html", "<head>", showInfo); // something issue with reaching eof
+
+    cout << "The Keyword is: ";
+    //cin >> keyword;
+
+    findInFile("test_sets/index.html", keyword, showInfo); // sometimes makes issue with reaching eof, ikd what to do
 
 
-    if(showInfo) fi("main()", 1);
+    functionInfo(showInfo, "main()", 'e');
 
 }
-
-// function.info: sampleFunction() is running with: <sample> | <sample> | <sample>
 
 
 
