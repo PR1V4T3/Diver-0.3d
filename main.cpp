@@ -4,7 +4,7 @@
  |                  :: DIVER ::                 |
  |            the HTML/CSS generator            |
  |                                              |
- |                version 0.3dev                |
+ |                version 0.3.2dev              |
  |                                              |
  |______________________________________________|
 
@@ -16,7 +16,15 @@
 
     using namespace std;
 
-void functionInfo(bool showInfo, string name, char startOrEnd = 's'){                    // functionInfo
+struct data{
+
+    string date = "DATE";
+    string topic = "TOPIC";
+    string content = "CONTENT";
+    string diverSymbol = "<!-- DIVER_INIT -->";
+};
+
+void functionInfo(bool showInfo, string name, char startOrEnd = 's'){                                           // DONE
 
      if(showInfo){
 
@@ -37,7 +45,9 @@ void functionInfo(bool showInfo, string name, char startOrEnd = 's'){           
     }
 }
 
-void numberVievAdjusting(int number){
+void numberVievAdjusting(int number){                                                                           // DONE
+
+    //functionInfo(true, "numerViewAdjusting");
 
     // : 10000 |
 
@@ -67,6 +77,9 @@ void numberVievAdjusting(int number){
     for(int i = 0; i < howManySpaces; i++) cout << " ";
 
     cout << " | ";
+
+
+    //functionInfo(true, "numerViewAdjusting", 'e');
 }
 
 bool checkIsExist(string filePath, bool showInfo = false){                                                      // DONE
@@ -78,6 +91,7 @@ bool checkIsExist(string filePath, bool showInfo = false){                      
 
     bool bufor;
 
+    cout << endl;
     cout << "Searching for: " << filePath << endl;
 
     if(textFile.is_open() == true){
@@ -111,10 +125,11 @@ void showContent(string filePath, bool showInfo = false){                       
 
         textFile.open(filePath.c_str());
 
+        cout << endl;
 
-        for(int i = 0; i < 50; i++) cout << "=";
+        for(int i = 0; i < 60; i++) cout << "#";
 
-        cout << "\n";
+        cout << endl;
 
             do{
 
@@ -131,7 +146,7 @@ void showContent(string filePath, bool showInfo = false){                       
 
             textFile.close();
 
-        for(int i = 0; i < 50; i++) cout << "=";
+        for(int i = 0; i < 60; i++) cout << "#";
 
         cout << "\n";
 
@@ -140,7 +155,7 @@ void showContent(string filePath, bool showInfo = false){                       
     functionInfo(showInfo, "showContent",'e');
 }
 
-int findInFile(string filePath, string keyWord, bool showInfo = false){                                         // TO OPTIMALIZATION // idk what did I want change :/
+int findInFile(string filePath, string keyWord, bool mode, bool showInfo = false){                              // TO DO
 
     functionInfo(showInfo, "findInFile");
 
@@ -150,21 +165,20 @@ int findInFile(string filePath, string keyWord, bool showInfo = false){         
     textFile.open(filePath.c_str());
 
     string downloadedWord;
-    int positionInFile;
+    int positionInFileAK;
+    int positionInFileBK;
     int lineInFile = 0;
     bool endLoop = false;
     bool isFound = false;
 
     cout << "Parser is looking for: " << keyWord << endl;
 
-    int smallTest;
-
     do{
 
         if(textFile.eof() == false){
 
             lineInFile++;
-            positionInFile = textFile.tellg();
+            positionInFileBK = textFile.tellg(); // AK means "After Keyword"
 
             getline(textFile, downloadedWord);
 
@@ -175,14 +189,7 @@ int findInFile(string filePath, string keyWord, bool showInfo = false){         
                 endLoop = true;
                 isFound = true;
 
-                smallTest = textFile.tellg();
-
-                if(showInfo){
-
-                    cout << "DBG.info: actual position in file: " << smallTest << endl;                                            /// VERY IMPORTANT PLACE
-                    cout << "In line: " << lineInFile << " has found: " << downloadedWord << endl;
-                    cout << "Keyword's line position in file: " << positionInFile << endl;
-                }
+                positionInFileAK = textFile.tellg(); // BK means "BeforeKeyword
 
             }else if(showInfo) cout << "In line: " << lineInFile << " hasn't found keyword.\n\n";
 
@@ -192,107 +199,198 @@ int findInFile(string filePath, string keyWord, bool showInfo = false){         
 
     textFile.close();
 
-    if(isFound == false) cout << "The keyword hasn't found.\n";
-    else cout << "The keyword has found\n";
+    if(isFound == true){
 
-    functionInfo(showInfo, "findInFile", 'e');
+        cout << "The keyword has found\n";
 
-    return positionInFile;
+        if(showInfo){
+
+            cout << endl;
+            cout << "############################################################\n";
+            cout << "DBG.info: position before keyword: " << positionInFileBK << endl;
+            cout << "DBG.info: position after keyword: " << positionInFileAK << endl;                                          /// VERY IMPORTANT PLACE
+            cout << "In line: " << lineInFile << " has found: " << downloadedWord << endl;
+            cout << "############################################################\n";
+
+        }
+
+        functionInfo(showInfo, "findInFile", 'e');
+
+            switch(mode){
+
+                case 0:
+                return positionInFileBK;
+                break;
+
+                case 1:
+                return positionInFileAK;
+                break;
+
+                default:
+                break;
+
+            }
+
+        }else{
+
+            cout << "The keyword hasn't found.\n";
+            return -1;
+
+        }
+    }
+}
+
+void backupContent(string filePath, string backupFilePath, int positionInFile, bool showInfo = false){                                                       // DONE
+
+    functionInfo(showInfo, "backupContent");
+
+    if(checkIsExist(filePath, showInfo) == true){
+
+        string bufor;
+        bool endLoop = false;
+
+        fstream textFile;
+        textFile.open(filePath.c_str());
+
+        fstream backupFile;
+        backupFile.open(backupFilePath.c_str(), ios::trunc | ios::out | ios::in);
+
+        textFile.seekg(positionInFile, ios_base::beg);
+        backupFile.seekp(0, ios_base::beg);
+
+            do{
+
+                if(textFile.eof() == false){
+
+                    getline(textFile, bufor);
+                    backupFile << bufor << endl;
+
+                }else endLoop = true;
+
+            }while(endLoop == false);
+
+            textFile.close();
+            backupFile.close();
+
+    }else cout << "Missing file in backupContent() \n";
+
+    functionInfo(showInfo, "backupContent",'e');
+}
+
+void generateBlock(string filePath, data filler, int positionInFile = 0, bool showInfo = false){
+
+    if(checkIsExist(filePath.c_str(), showInfo) == true){
+
+        functionInfo(showInfo, "generator");
+
+        cout << "Path: " << filePath << " Position: " << positionInFile << endl;
+
+        fstream textFile;
+        textFile.open(filePath.c_str());
+
+        textFile.seekp(positionInFile, ios_base::beg);
+
+        string date = "<div id=\"data\"> " + filler.date + " </div>";
+        string topic = "<div id=\"topic\"> " + filler.topic + " </div>";
+        string content = "<div id=\"content\"> " + filler.content + " </div>";
+
+        textFile << date << endl;
+        textFile << topic << endl;
+        textFile << content << endl;
+
+        textFile << endl << filler.diverSymbol << endl << endl;
+
+        textFile.close();
+
+        functionInfo(showInfo, "generator", 'e');
 
     }
 }
 
-int saveToFile(string filePath, int positionInFile, bool showInfo = false){                                     // TODO - pracowac przede wszystkim tutaj
+void putBackup(string filePath, string backupFilePath, int positionInFile, bool showInfo = false){
 
-    functionInfo(showInfo, "saveToFile");
+    functionInfo(showInfo, "backupContent");
 
-    string upload;
-    fstream textFile;
-    textFile.open(filePath.c_str());
+    if(checkIsExist(filePath, showInfo) == true){
 
-    textFile.seekp(positionInFile, ios_base::beg);
+        string content = "";
+        string bufor;
+        bool endLoop = false;
 
-    cin >> upload;
-    textFile << endl;
+        fstream textFile;
+        textFile.open(filePath.c_str());
 
-    textFile.close();
+        fstream backupFile;
+        backupFile.open(backupFilePath.c_str());
 
-    functionInfo(showInfo, "saveToFile", 'e');
+        textFile.seekg(positionInFile, ios_base::beg);
+        backupFile.seekp(0, ios_base::beg);
 
-    return textFile.tellp();
-}
+            do{
 
-int sendContent(string filePath, int positionInFile, char mode, bool showInfo = false){                         // TODO
+                if(backupFile.eof() == false){
 
-    functionInfo(showInfo, "sendContent",1);
+                    getline(backupFile, bufor);
+                    textFile << bufor << endl;
 
-    fstream textFile;
-    fstream temporaryFile;
+                }else endLoop = true;
 
-    if(checkIsExist("temporaryFile.txt") == false) system("gedit temporaryFile.txt");
+            }while(endLoop == false);
 
-    textFile.open(filePath.c_str(), ios::out | ios::in );
-    temporaryFile.open("temporaryFile.txt", ios::trunc | ios::out | ios::in);
+            textFile.close();
+            backupFile.close();
 
-    string contentBufor;
+    }else cout << "Missing file in backupContent() \n";
 
-    textFile.seekg(positionInFile, ios_base::beg);
-
-    if( mode == 's') do{
-
-                        cout << "|| Mode: send\n";
-                        getline(textFile, contentBufor);
-                        temporaryFile << contentBufor << endl;
-
-                    }while(textFile.eof() == false);
-
-    if(mode == 'g') {
-
-                    temporaryFile.seekg(0, ios::beg);
-                    bool endLoop = true;
-
-                    do{
-
-                        if(textFile.eof() == false){
-
-                            cout << textFile.tellg() << endl;
-                            cout << temporaryFile.tellp() << endl;
-                            cout << contentBufor << endl;
-                            cout << "|| Mode: get\n";
-                            getline(temporaryFile, contentBufor);
-                            textFile << contentBufor << endl;
-
-                        }else endLoop = true;
-
-                    }while(endLoop == false);
-
-                    }
-
-    textFile.close();
-    temporaryFile.close();
-
-    functionInfo(showInfo, "sendContent",1);
-
-    return temporaryFile.tellg();
-
+    functionInfo(showInfo, "backupContent",'e');
 }
 
 int main(){
 
-    bool showInfo = 0;
-    string keyword = "<div id=name>";
+    data sample;
 
-    functionInfo(showInfo, "main()");
+    sample.date = "DATA";
+    sample.topic = "TOPIC";
+    sample.content = "CONTENT";
+    sample.diverSymbol = "<!-- DIVER_INIT -->";
 
-    showContent("test_sets/index.html", showInfo);
-
-    cout << "The Keyword is: ";
-    //cin >> keyword;
-
-    findInFile("test_sets/index.html", keyword, showInfo); // sometimes makes issue with reaching eof, ikd what to do
+    cout << "+++++++++++++++\n";
+    cout << "DATE: ";
+    cin >> sample.date;
+    cout << "+++++++++++++++\n";
 
 
-    functionInfo(showInfo, "main()", 'e');
+    cout << "+++++++++++++++\n";
+    cout << "TOPIC: ";
+    cin >> sample.topic;
+    cout << "+++++++++++++++\n";
+
+
+    cout << "+++++++++++++++\n";
+    cout << "CONTENT: ";
+    cin >> sample.content;
+    cout << "+++++++++++++++\n";
+
+    bool showInfo = true;
+    string filePath = "test_sets/index.html";
+    string backupFilePath = "test_sets/backup.txt";
+
+    functionInfo(showInfo, "main");
+
+    showContent(filePath, showInfo);
+
+    // 0 = before keyword, 1 = after keyword
+
+    ///
+    backupContent(filePath, backupFilePath, findInFile(filePath, sample.diverSymbol, 1, false), showInfo);
+    ///
+    generateBlock(filePath, sample, findInFile(filePath, sample.diverSymbol, 0, false), showInfo);
+    ///
+    putBackup(filePath, backupFilePath, findInFile(filePath, sample.diverSymbol, 1, false), showInfo);
+    ///
+
+
+    functionInfo(showInfo, "main", 'e');
 
 }
 
