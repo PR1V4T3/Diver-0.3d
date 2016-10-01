@@ -4,7 +4,7 @@
  |                  :: DIVER ::                 |
  |            the HTML/CSS generator            |
  |                                              |
- |                version 0.3.2dev              |
+ |              version 0.4.1 Alpha             |
  |                                              |
  |______________________________________________|
 
@@ -50,8 +50,6 @@ void numberVievAdjusting(int number){                                           
     //functionInfo(true, "numerViewAdjusting");
 
     // : 10000 |
-
-    int i = 0;
 
     unsigned int howManySpaces;
 
@@ -155,7 +153,7 @@ void showContent(string filePath, bool showInfo = false){                       
     functionInfo(showInfo, "showContent",'e');
 }
 
-int findInFile(string filePath, string keyWord, bool mode, bool showInfo = false){                              // TO DO
+int findInFile(string filePath, string keyWord, bool mode, bool showInfo = false){                              // DONE
 
     functionInfo(showInfo, "findInFile");
 
@@ -240,7 +238,7 @@ int findInFile(string filePath, string keyWord, bool mode, bool showInfo = false
     }
 }
 
-void backupContent(string filePath, string backupFilePath, int positionInFile, bool showInfo = false){                                                       // DONE
+void backupContent(string filePath, string backupFilePath, int positionInFile, bool showInfo = false){          // DONE
 
     functionInfo(showInfo, "backupContent");
 
@@ -277,7 +275,7 @@ void backupContent(string filePath, string backupFilePath, int positionInFile, b
     functionInfo(showInfo, "backupContent",'e');
 }
 
-void generateBlock(string filePath, data filler, int positionInFile = 0, bool showInfo = false){
+void generateBlock(string filePath, data filler, int positionInFile = 0, bool showInfo = false){                // DONE
 
     if(checkIsExist(filePath.c_str(), showInfo) == true){
 
@@ -307,7 +305,7 @@ void generateBlock(string filePath, data filler, int positionInFile = 0, bool sh
     }
 }
 
-void putBackup(string filePath, string backupFilePath, int positionInFile, bool showInfo = false){
+void putBackup(string filePath, string backupFilePath, int positionInFile, bool showInfo = false){              // DONE
 
     functionInfo(showInfo, "backupContent");
 
@@ -345,35 +343,59 @@ void putBackup(string filePath, string backupFilePath, int positionInFile, bool 
     functionInfo(showInfo, "backupContent",'e');
 }
 
+string write(string name, string endKeyword = "-e", bool showInfo = false){                                     // TODO: new method for save return values, all is in one line without new line charachters
+
+    functionInfo(showInfo, "write");
+
+    string bufor = "";
+    string content = "";
+    bool endLoop = false;
+
+    for(int i = 0; i < 60; i++) cout << "#";
+
+    cout << "\n\n";
+    cout << "# You're writting in: " << name << "\n\n";
+
+    if(name == "Date" || name == "date") cout << "Date Format: \n\n\tdd.mm.yy " << endKeyword << "\n" << "or" << "\n" << "\tdd mm yy " << endKeyword << "\n" << "or" << "\n" << "\tdd/mm/yy " << endKeyword << "\n\n";
+
+
+    cout << "# If you want go to next step, you should write \" " << endKeyword << " \"; at end of your text and separate it by pressing spacebar.\n\n";
+    cout << ": ";
+    do{
+
+        cin >> bufor;
+
+        if(bufor != endKeyword) content = content + bufor;
+        else endLoop = true;
+
+    }while(endLoop == false);
+
+    for(int i = 0; i < 60; i++) cout << "#";
+
+    cout << "\n";
+
+    functionInfo(showInfo, "write", 'e');
+
+    return content;
+}
+
 int main(){
+
+    bool showInfo = true;
+
+    string endKeyword = "-e";
+
+    string filePath       = "test_sets/index.html";
+    string backupFilePath = "test_sets/backup.txt";
 
     data sample;
 
-    sample.date = "DATA";
-    sample.topic = "TOPIC";
-    sample.content = "CONTENT";
+    sample.date = write("Date", endKeyword, showInfo);
+    sample.topic = write("Topic", endKeyword, showInfo);
+    sample.content = write("Content", endKeyword, showInfo);
     sample.diverSymbol = "<!-- DIVER_INIT -->";
 
-    cout << "+++++++++++++++\n";
-    cout << "DATE: ";
-    cin >> sample.date;
-    cout << "+++++++++++++++\n";
-
-
-    cout << "+++++++++++++++\n";
-    cout << "TOPIC: ";
-    cin >> sample.topic;
-    cout << "+++++++++++++++\n";
-
-
-    cout << "+++++++++++++++\n";
-    cout << "CONTENT: ";
-    cin >> sample.content;
-    cout << "+++++++++++++++\n";
-
-    bool showInfo = true;
-    string filePath = "test_sets/index.html";
-    string backupFilePath = "test_sets/backup.txt";
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     functionInfo(showInfo, "main");
 
@@ -391,6 +413,10 @@ int main(){
 
 
     functionInfo(showInfo, "main", 'e');
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    return 0;
 
 }
 
